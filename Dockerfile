@@ -8,8 +8,10 @@ RUN apt-get update
 RUN apt-get install -y tmux
 
 # Install Python & Python dependencies
-RUN apt-get install -y python3-pip
-RUN apt-get install -y python3-pyqt6
+RUN apt-get install -y python3-pip python3-pyqt6
+
+# Install ROS tools
+RUN apt-get install -y ros-jazzy-rqt-graph
 
 # Symlink the mount to root home
 RUN rm -rf /root
