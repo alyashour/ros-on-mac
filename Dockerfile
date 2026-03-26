@@ -4,14 +4,20 @@ FROM docker.io/arm64v8/ros
 # Update APT
 RUN apt-get update 
 
-# Install Python
-RUN apt-get install -y python3-pip
+# Install tmux
+RUN apt-get install -y tmux
 
-# Install Python dependencies
+# Install Python & Python dependencies
+RUN apt-get install -y python3-pip
 RUN apt-get install -y python3-pyqt6
 
+# Symlink the mount to root home
+RUN rm -rf /root
+RUN ln -s /mnt/mac /root
+
 # Set the working directory
-WORKDIR /mnt/mac
+WORKDIR /root
 
 # Source ROS 2 automatically for every bash session
-RUN echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+ RUN touch /root/.bashrc
+ RUN echo "source /opt/ros/jazzy/setup.bash" >> /root/.bashrc
