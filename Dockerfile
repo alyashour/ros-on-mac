@@ -1,25 +1,30 @@
-# Start from the ROS 2 Jazzy Desktop image
-FROM docker.io/arm64v8/ros
+# Start from the ROS 2 Jazzy image
+FROM docker.io/arm64v8/ros:jazzy
 
-# Update APT
-RUN apt-get update 
+# Create user with a home directory
+RUN groupadd -r user && useradd -r -g user -m -d /home/user -s /bin/bash user
 
-# Install tmux
-RUN apt-get install -y tmux
+# Add to sudo
+RUN usermod -aG sudo user
+RUN echo "user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Install Python & Python dependencies
-RUN apt-get install -y python3-pip python3-pyqt6
+# Update and Install packages (Combined to save space/layers)
+RUN apt-get update && apt-get install -y \
+    tmux \
+    ripgrep \
+    curl \
+    vim \
+    python3-pip \
+    python3-pyqt6 \
+    ros-jazzy-rqt-graph \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install ROS tools
-RUN apt-get install -y ros-jazzy-rqt-graph
+# Set up the working directory in the USER's home, not /root
+WORKDIR /home/user
+RUN echo "source /opt/ros/jazzy/setup.bash" >> /home/user/.bashrc
 
-# Symlink the mount to root home
-RUN rm -rf /root
-RUN ln -s /mnt/mac /root
+# Switch to the user
+USER user
 
-# Set the working directory
-WORKDIR /root
-
-# Source ROS 2 automatically for every bash session
- RUN touch /root/.bashrc
- RUN echo "source /opt/ros/jazzy/setup.bash" >> /root/.bashrc
+# Default to bash so it sources the .bashrc
+CMD ["/bin/bash"]
